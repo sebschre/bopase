@@ -1,6 +1,9 @@
 from ase.atom import Atom
 
-from ase.atom import Atom, atomproperty
+from ase.atom import Atom, atomproperty, names
+
+
+names['onsite_level'] = ('onsite_levels', 0.0)
 
 
 class BOPAtom(Atom):
@@ -8,8 +11,6 @@ class BOPAtom(Atom):
 
     def __init__(self, onsite_level=None, atoms=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.names['onsite_level'] = ('onsite_levels', 0.0)
 
         if atoms is None:
             self.data['onsite_level'] = onsite_level
