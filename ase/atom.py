@@ -5,14 +5,6 @@ import numpy as np
 from ase.data import atomic_numbers, chemical_symbols, atomic_masses
 from ase.utils import basestring
 
-# Singular, plural, default value:
-names = {'position': ('positions', np.zeros(3)),
-         'number': ('numbers', 0),
-         'tag': ('tags', 0),
-         'momentum': ('momenta', np.zeros(3)),
-         'mass': ('masses', None),
-         'magmom': ('initial_magmoms', 0.0),
-         'charge': ('initial_charges', 0.0)}
 
 
 def atomproperty(name, doc):
@@ -77,12 +69,22 @@ class Atom(object):
     charge: float
         Atomic charge.
     """
+
     __slots__ = ['data', 'atoms', 'index']
 
     def __init__(self, symbol='X', position=(0, 0, 0),
                  tag=None, momentum=None, mass=None,
                  magmom=None, charge=None,
                  atoms=None, index=None):
+
+        # Singular, plural, default value:
+        self.names = {'position': ('positions', np.zeros(3)),
+                 'number': ('numbers', 0),
+                 'tag': ('tags', 0),
+                 'momentum': ('momenta', np.zeros(3)),
+                 'mass': ('masses', None),
+                 'magmom': ('initial_magmoms', 0.0),
+                 'charge': ('initial_charges', 0.0)}
 
         self.data = d = {}
 
@@ -122,7 +124,7 @@ class Atom(object):
 
     def cut_reference_to_atoms(self):
         """Cut reference to atoms object."""
-        for name in names:
+        for name in self.names:
             self.data[name] = self.get_raw(name)
         self.index = None
         self.atoms = None
@@ -135,7 +137,7 @@ class Atom(object):
         if self.atoms is None:
             return self.data[name]
 
-        plural = names[name][0]
+        plural = self.names[name][0]
         if plural in self.atoms.arrays:
             return self.atoms.arrays[plural][self.index]
         else:
@@ -148,7 +150,7 @@ class Atom(object):
             if name == 'mass':
                 value = atomic_masses[self.number]
             else:
-                value = names[name][1]
+                value = self.names[name][1]
         return value
 
     def set(self, name, value):
@@ -158,10 +160,10 @@ class Atom(object):
             value = atomic_numbers[value]
 
         if self.atoms is None:
-            assert name in names
+            assert name in self.names
             self.data[name] = value
         else:
-            plural, default = names[name]
+            plural, default = self.names[name]
             if plural in self.atoms.arrays:
                 array = self.atoms.arrays[plural]
                 if name == 'magmom' and array.ndim == 2:
