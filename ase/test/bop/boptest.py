@@ -6,4 +6,5 @@ from ase.atom import Atom
 
 #b = Atoms([Atom('Fe', [0,0,0])])
 
-b = BOPAtoms([BOPAtom('Fe', [0,0,0])])
+b = BOPAtoms(symbols='Fe', positions=[[0, 0, 0]], onsite_levels=[0.5])
+print(b[0].onsite_level)

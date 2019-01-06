@@ -1,17 +1,20 @@
 from ase.atoms import Atoms
 from ase.bop.bopatom import BOPAtom
+import numbers
 
 
 class BOPAtoms(Atoms):
 
-    def __init__(self, symbols=None, *args, **kwargs):
-        super().__init__(symbols, *args, **kwargs)
-        if (isinstance(symbols, (list, tuple)) and
-              len(symbols) > 0 and isinstance(symbols[0], BOPAtom)):
-            # Get data from a list or tuple of Atom objects:
-            data = [[atom.get_raw(name) for atom in symbols]
-                    for name in
-                    ['position', 'number', 'tag', 'momentum',
-                     'mass', 'magmom', 'charge', 'onsite_level']]
-            atoms = self.__class__(None, *data)
-            symbols = None
+    def __init__(self, onsite_levels, **kwargs):
+        # only use named arguments to avoid confusion
+        super().__init__(**kwargs)
+        self.set_array('onsite_levels', onsite_levels, dtype='float')
+
+    def __getitem__(self, i):
+        if isinstance(i, numbers.Integral):
+            natoms = len(self)
+            if i < -natoms or i >= natoms:
+                raise IndexError('Index out of range.')
+            return BOPAtom(bopatoms=self, index=i)
+        else:
+            return super().__getitem__(i)
