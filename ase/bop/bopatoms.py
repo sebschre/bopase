@@ -6,7 +6,7 @@ import numbers
 class BOPAtoms(Atoms):
 
     def __init__(self, onsite_levels, **kwargs):
-        # only use named arguments to avoid confusion
+        # only use named arguments to avoid confusion with order of parent class constructor arguments
         super().__init__(**kwargs)
         self.set_array('onsite_levels', onsite_levels, dtype='float')
 
