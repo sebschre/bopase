@@ -14,6 +14,20 @@ class TwoCenterHoppingIntegrals:
     def update_hops(self):
         raise NotImplemented
 
+    def get_single_hop_global(self, index: int, jneigh: int):
+        raise NotImplementedError
+
+    def get_single_hop_local(self, index: int, jneigh: int):
+        bopatom_i = self.bopatoms[index]
+        (bopatom_i_neighbors, pos_list) = self.nl.get_neighbors(index)
+        bopatom_i_neigh_j = self.bopatoms[bopatom_i_neighbors[jneigh]]
+        rel_pos_ij = pos_list[jneigh]
+        distance_ij = np.linalg.norm(rel_pos_ij)
+        print(bopatom_i)
+        print(bopatom_i_neigh_j)
+        print(distance_ij)
+        pass
+
     def get_relative_position(self, index: int, jneigh: int):
         '''
         :param index: atom index
@@ -30,7 +44,6 @@ class TwoCenterHoppingIntegrals:
     def get_rotation(self, index: int, jneigh:int, z_axis_global: np.array=np.array([0, 0, 1])) -> Rotation:
         rel_pos = self.get_relative_position(index, jneigh)
         v = np.cross(rel_pos, z_axis_global)
-        sine   = np.abs(v)
         cosine = np.dot(rel_pos, z_axis_global)
         if cosine != -1:
             v_cross = [[0    , -v[2], v[1] ],
