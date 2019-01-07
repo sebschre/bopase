@@ -14,19 +14,43 @@ class TwoCenterHoppingIntegrals:
     def update_hops(self):
         raise NotImplemented
 
-    def get_single_hop_global(self, index: int, jneigh: int):
-        raise NotImplementedError
+    def get_single_hop_global(self, atomindex: int, jneigh: int):
+        hop = self.get_single_hop_local(atomindex, jneigh)
+        rot = self.get_rotation(atomindex, jneigh)
+        return hop
 
-    def get_single_hop_local(self, index: int, jneigh: int):
-        bopatom_i = self.bopatoms[index]
-        (bopatom_i_neighbors, pos_list) = self.nl.get_neighbors(index)
-        bopatom_i_neigh_j = self.bopatoms[bopatom_i_neighbors[jneigh]]
+
+    def get_single_hop_local(self, atomindex: int, jneigh: int):
+        bopatom_i = self.bopatoms[atomindex]
+        (bopatom_neighbors_i, scaled_pos_list) = self.nl.get_neighbors(atomindex)
+        bopatom_j_neigh_i = self.bopatoms[bopatom_neighbors_i[jneigh]]
+        pos_list = np.dot(scaled_pos_list, self.bopatoms.get_cell())
         rel_pos_ij = pos_list[jneigh]
-        distance_ij = np.linalg.norm(rel_pos_ij)
-        print(bopatom_i)
-        print(bopatom_i_neigh_j)
-        print(distance_ij)
-        pass
+        r_ij = np.linalg.norm(rel_pos_ij)
+
+        ss_sigma = 0
+        sp_sigma = 0
+        sd_sigma = 0
+        pp_sigma = 0
+        pp_pi = 0
+        pd_sigma = 0
+        pd_pi = 0
+        dd_sigma = 0
+        dd_pi = 0
+        dd_delta = 0
+        slater_koster_matrix = np.zeros((9, 9))
+        # initialize bond integrals
+        if bopatom_i.number_valence_orbitals == 5 and bopatom_j_neigh_i.number_valence_orbitals == 5:
+            dd_sigma = np.exp(-r_ij * 1)
+            dd_pi = np.exp(-r_ij * 2)
+            dd_delta = np.exp(-r_ij * 3)
+            slater_koster_matrix[4, 4] = dd_delta
+            slater_koster_matrix[5, 5] = dd_pi
+            slater_koster_matrix[6, 6] = dd_pi
+            slater_koster_matrix[7, 7] = dd_delta
+            slater_koster_matrix[8, 8] = dd_sigma
+        return slater_koster_matrix[4:, 4:]
+
 
     def get_relative_position(self, index: int, jneigh: int):
         '''
@@ -41,8 +65,8 @@ class TwoCenterHoppingIntegrals:
         (index_list, relative_position_list) = self.nl.get_neighbors(index)
         return relative_position_list[jneigh]
 
-    def get_rotation(self, index: int, jneigh:int, z_axis_global: np.array=np.array([0, 0, 1])) -> Rotation:
-        rel_pos = self.get_relative_position(index, jneigh)
+    def get_rotation(self, atomindex: int, jneigh:int, z_axis_global: np.array=np.array([0, 0, 1])) -> Rotation:
+        rel_pos = self.get_relative_position(atomindex, jneigh)
         v = np.cross(rel_pos, z_axis_global)
         cosine = np.dot(rel_pos, z_axis_global)
         if cosine != -1:
