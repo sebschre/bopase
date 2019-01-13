@@ -77,3 +77,44 @@ class TwoCenterHoppingIntegrals:
         else:
             rotation_matrix = np.diag([1, 1, -1])
         return Rotation.from_dcm(rotation_matrix)
+
+    def get_dbond_rotation_matrix(self, theta, phi):
+        '''
+        assumes bond to be ordered in ddsigma, ddpi, ddpi, dddelta
+        :param theta:
+        :param phi:
+        :return:
+        '''
+        from numpy import sqrt, cos, sin
+        rot = np.zeros(5,5)
+        rot[4, 3] = -2 * sin(phi) * cos(phi) * cos(theta)
+        rot[3, 3] = cos(phi)**2 - sin(phi)**2
+        rot[2, 3] = -2 * sin(phi) * cos(phi) * sin(theta)
+        rot[1, 3] = (cos(phi)**2 - sin(phi)**2) * sin(theta) * cos(theta)
+        rot[0, 3] = (cos(phi)**2 - sin(phi)**2) * sqrt(3/4.) * sin(theta)**2
+
+        rot[4, 1] = sin(phi) * sin(theta)
+        rot[3, 1] = -cos(phi) * sin(theta) * cos(theta)
+        rot[2, 1] = -sin(phi) * cos(theta)
+        rot[1, 1] = cos(phi) * (cos(phi)**2 - sin(phi)**2)
+        rot[0, 1] = sqrt(3) * cos(phi) * sin(theta) * cos(theta)
+
+        rot[4, 0] = 0
+        rot[3, 0] = sqrt(3/4.) * sin(theta)**2
+        rot[2, 0] = 0
+        rot[1, 0] = -sqrt(3) * sin(theta) * cos(theta)
+        rot[0, 0] = cos(theta)**2 - 0.5 * sin(theta)**2
+
+        rot[4, 2] = -cos(phi) * sin(theta)
+        rot[3, 2] = -sin(phi) * sin(theta) * cos(theta)
+        rot[2, 2] = cos(phi) * cos(theta)
+        rot[1, 2] = sin(phi) * (cos(theta)**2 - sin(theta)**2)
+        rot[0, 2] = sqrt(3) * sin(phi) * sin(theta) * cos(theta)
+
+        rot[4, 4] = (cos(phi)**2 - sin(phi)**2) * cos(theta)
+        rot[3, 4] = sin(phi) * cos(phi) * (cos(theta)**2 + 1)
+        rot[2, 4] = (cos(phi)**2 - sin(phi)**2) * sin(theta)
+        rot[1, 4] = 2 * sin(phi) * cos(phi) * sin(theta) * cos(theta)
+        rot[0, 4] = sqrt(3) * sin(phi) * cos(phi) * sin(theta)**2
+
+        return rot
