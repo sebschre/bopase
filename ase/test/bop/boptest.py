@@ -3,6 +3,7 @@ from ase.bop.bopatoms import BOPAtoms
 from ase.neighborlist import NeighborList
 from ase.bop.buildhop import TwoCenterHoppingIntegrals
 
+
 lattice_constant = 2
 
 onsite_level = 0.5
@@ -26,3 +27,5 @@ rotated_rel_pos = twocenterhops.get_rotation(0, rotnum, z_axis_global=z_axis).ap
 
 print(twocenterhops.get_single_hop_local(0, 3))
 print(twocenterhops.get_single_hop_global(0, 3))
+
+print(twocenterhops.get_dbond_rotation_matrix(np.pi, 0))
